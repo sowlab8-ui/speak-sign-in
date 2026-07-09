@@ -1,0 +1,364 @@
+/* =======================================================
+   SignSpeak AI — Design tokens
+   Palette born from the idea of two signals meeting:
+   teal  = the visual channel  (hands / sight)
+   amber = the audio channel   (voice / sound)
+   Everything sits on a deep, quiet indigo "stage" so the
+   camera feed and the recognized word stay the focus.
+   ======================================================= */
+:root{
+  --bg:            #0E1226;
+  --bg-grad:       radial-gradient(1200px 600px at 15% -10%, #171d3d 0%, #0E1226 55%);
+  --surface:       #161B36;
+  --surface-alt:   #1D2444;
+  --border:        #2A3159;
+  --border-soft:   #232A4E;
+
+  --text:          #EDEEF4;
+  --text-dim:      #9BA3C0;
+  --text-faint:    #6B7396;
+
+  --teal:          #3FDBC4;
+  --teal-dim:      #1F7A6E;
+  --amber:         #F2A93B;
+  --amber-dim:     #8A6522;
+  --danger:        #F2555A;
+
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 9px;
+
+  --font-display: 'Space Grotesk', 'Inter', sans-serif;
+  --font-body:    'Inter', sans-serif;
+  --font-tamil:   'Noto Sans Tamil', 'Inter', sans-serif;
+
+  --shadow-panel: 0 20px 60px -30px rgba(0,0,0,0.6);
+}
+
+*{ box-sizing: border-box; }
+html,body{ margin:0; padding:0; }
+
+body{
+  background: var(--bg-grad);
+  color: var(--text);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+body[data-lang="ta"] [data-i18n], body[data-lang="ta"] .use-tamil-font{
+  font-family: var(--font-tamil);
+}
+
+button{ font-family: inherit; }
+
+.app{
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 20px 20px 40px;
+}
+
+/* ============ TOP BAR ============ */
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--border-soft);
+  margin-bottom: 26px;
+}
+.brand{ display:flex; align-items:center; gap:12px; }
+.brand-mark{
+  display:flex; align-items:center; justify-content:center;
+  width: 44px; height:44px; border-radius: 12px;
+  background: linear-gradient(145deg, rgba(63,219,196,0.16), rgba(242,169,59,0.14));
+  color: var(--teal);
+  border: 1px solid var(--border-soft);
+}
+.brand-text h1{
+  font-family: var(--font-display);
+  font-size: 1.28rem;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+.brand-text h1 span{ color: var(--amber); }
+.tagline{
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.topbar-controls{ display:flex; align-items:center; gap:14px; flex-wrap: wrap; }
+
+.status-pill{
+  display:flex; align-items:center; gap:8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 7px 13px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+.status-pill .dot{
+  width:8px; height:8px; border-radius:50%;
+  background: var(--text-faint);
+  transition: background .25s ease, box-shadow .25s ease;
+}
+.status-pill.ready .dot{ background: var(--teal); box-shadow: 0 0 10px var(--teal); }
+.status-pill.error .dot{ background: var(--danger); box-shadow: 0 0 10px var(--danger); }
+
+.lang-toggle{ display:flex; background: var(--surface); border:1px solid var(--border); border-radius: 999px; padding:3px; }
+.lang-btn{
+  border:none; background:transparent; color: var(--text-dim);
+  padding: 6px 14px; border-radius: 999px; font-size:0.82rem; font-weight:600;
+  cursor:pointer; transition: all .18s ease;
+}
+.lang-btn.active{ background: var(--teal); color: #06231e; }
+
+/* ============ STAGE / PANELS ============ */
+.stage{
+  display:grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 880px){
+  .stage{ grid-template-columns: 1fr; }
+}
+
+.panel{
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-panel);
+  display:flex;
+  flex-direction:column;
+  gap: 14px;
+}
+
+.panel-head h2{
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  margin: 0 0 2px;
+  font-weight: 600;
+}
+.panel-sub{ font-size: 0.82rem; color: var(--text-dim); }
+
+/* ---- camera ---- */
+.camera-wrap{
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: #05070f;
+  border: 1px solid var(--border-soft);
+  transform: scaleX(-1); /* mirror the whole stage: video + canvas + placeholder move together */
+}
+#webcam{
+  width: 100%; height:100%; object-fit: cover; display:block;
+}
+#overlay{
+  position:absolute; inset:0; width:100%; height:100%;
+}
+.camera-placeholder{
+  position:absolute; inset:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:10px; color: var(--text-faint);
+  transform: scaleX(-1); /* undo parent mirror so icon/text read correctly */
+}
+.camera-placeholder p{ font-size:0.85rem; margin:0; }
+
+.rec-badge{
+  position:absolute; top:10px; right:10px;
+  transform: scaleX(-1);
+  display:flex; align-items:center; gap:6px;
+  background: rgba(15,18,38,0.75);
+  border:1px solid var(--border-soft);
+  color: var(--danger);
+  font-size: 0.7rem; font-weight:700; letter-spacing:0.04em;
+  padding: 4px 9px; border-radius:999px;
+}
+.rec-badge.hidden{ display:none; }
+.rec-dot{
+  width:7px; height:7px; border-radius:50%; background: var(--danger);
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+@keyframes pulse-dot{ 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+
+/* ---- buttons ---- */
+.btn{
+  border:none; cursor:pointer; border-radius: var(--radius-sm);
+  padding: 12px 18px; font-weight:600; font-size:0.92rem;
+  transition: transform .12s ease, filter .12s ease;
+}
+.btn:active{ transform: scale(0.98); }
+.btn-primary{
+  background: linear-gradient(120deg, var(--teal), #33c2ad);
+  color: #06231e;
+}
+.btn-primary:hover{ filter: brightness(1.06); }
+.btn-primary.is-active{
+  background: linear-gradient(120deg, var(--danger), #d0454a);
+  color: #2a0808;
+}
+.btn-ghost{
+  background: transparent; border: 1px solid var(--border);
+  color: var(--text-dim); font-size:0.8rem; padding: 8px 14px;
+}
+.btn-ghost:hover{ color: var(--text); border-color: var(--text-faint); }
+
+/* ---- recognized card ---- */
+.recognized-card{
+  background: var(--surface-alt);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  text-align:center;
+  position: relative;
+}
+.recognized-label{
+  font-size: 0.7rem; text-transform:uppercase; letter-spacing:0.08em;
+  color: var(--text-faint); font-weight:600;
+}
+.recognized-word{
+  font-family: var(--font-display);
+  font-size: 1.9rem; font-weight:600;
+  margin-top: 4px;
+  color: var(--text);
+  transition: color .2s ease;
+}
+.recognized-word-ta{
+  font-family: var(--font-tamil);
+  font-size: 1.1rem;
+  color: var(--amber);
+  min-height: 1.4em;
+}
+.recognized-card.flash .recognized-word{ color: var(--amber); }
+.confidence-track{
+  margin-top:10px; height:4px; border-radius:4px;
+  background: var(--border); overflow:hidden;
+}
+.confidence-fill{
+  height:100%; width:0%; background: linear-gradient(90deg, var(--teal), var(--amber));
+  transition: width .15s linear;
+}
+
+/* ---- vocab strip ---- */
+.vocab-strip{ display:flex; flex-wrap:wrap; gap:8px; }
+.vocab-chip{
+  font-size: 0.76rem;
+  padding: 6px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  background: var(--surface-alt);
+  transition: all .15s ease;
+}
+.vocab-chip.active{
+  color: #06231e;
+  background: var(--teal);
+  border-color: var(--teal);
+}
+
+/* ============ SPEECH PANEL ============ */
+.mic-stage{
+  display:flex; flex-direction:column; align-items:center; gap:10px;
+  padding: 14px 0 6px;
+}
+.mic-btn{
+  width: 74px; height:74px; border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  color: var(--amber);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+  transition: all .18s ease;
+}
+.mic-btn:hover{ border-color: var(--amber); }
+.mic-btn.listening{
+  background: var(--amber);
+  color: #2a1a02;
+  box-shadow: 0 0 0 8px rgba(242,169,59,0.14);
+  animation: mic-breathe 1.6s ease-in-out infinite;
+}
+@keyframes mic-breathe{
+  0%,100%{ box-shadow: 0 0 0 6px rgba(242,169,59,0.14); }
+  50%{ box-shadow: 0 0 0 14px rgba(242,169,59,0.05); }
+}
+.mic-hint{ font-size:0.82rem; color: var(--text-dim); margin: 0; }
+
+.recog-lang-toggle{ display:flex; gap:8px; margin-top:4px; }
+.chip{
+  border:1px solid var(--border); background: var(--surface-alt); color: var(--text-dim);
+  font-size:0.76rem; padding: 5px 12px; border-radius:999px; cursor:pointer;
+}
+.chip.active{ color:#2a1a02; background: var(--amber); border-color: var(--amber); }
+
+.transcript-box{
+  flex:1;
+  background: var(--surface-alt);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  min-height: 180px;
+  display:flex; flex-direction:column; gap:8px;
+  overflow-y:auto;
+}
+.transcript-final{
+  font-size: 1.35rem; line-height:1.45; margin:0; font-weight:500;
+}
+.transcript-interim{
+  font-size: 1.1rem; color: var(--text-faint); margin:0; font-style:italic;
+}
+.transcript-empty{
+  color: var(--text-faint); font-size:0.85rem; margin:auto 0; text-align:center;
+}
+
+/* ============ HISTORY ============ */
+.history{
+  margin-top: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+}
+.history-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.history-head h2{ font-family: var(--font-display); font-size:1rem; margin:0; font-weight:600; }
+
+.history-list{ list-style:none; margin:0; padding:0; max-height: 220px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; }
+.history-empty{ color: var(--text-faint); font-size:0.85rem; padding: 10px 2px; }
+.history-item{
+  display:flex; align-items:baseline; gap:10px;
+  padding: 8px 10px; border-radius: var(--radius-sm);
+  background: var(--surface-alt);
+  font-size: 0.88rem;
+}
+.history-item .tag{
+  font-size:0.68rem; font-weight:700; padding:2px 7px; border-radius:999px; flex-shrink:0;
+}
+.history-item.sign .tag{ background: rgba(63,219,196,0.15); color: var(--teal); }
+.history-item.speech .tag{ background: rgba(242,169,59,0.15); color: var(--amber); }
+.history-item .time{ color: var(--text-faint); font-size:0.72rem; margin-left:auto; flex-shrink:0; }
+
+.footer{
+  margin-top: 18px;
+  text-align:center;
+  color: var(--text-faint);
+  font-size: 0.78rem;
+}
+
+/* accessibility: reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .rec-dot, .mic-btn.listening{ animation: none; }
+  .btn, .lang-btn, .chip{ transition: none; }
+}
+
+/* visible keyboard focus */
+button:focus-visible{
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SignSpeak AI — Real-Time Sign Language Translator</title>
+<meta name="description" content="A two-way sign language translator prototype: camera-based sign recognition with speech output, and speech-to-text for two-way conversation." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Tamil:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============ TOP BAR ============ -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 48 48" width="28" height="28" fill="none">
+          <path d="M14 26V13a3 3 0 0 1 6 0v9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          <path d="M20 22V9a3 3 0 0 1 6 0v13" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          <path d="M26 22v-8a3 3 0 0 1 6 0v10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          <path d="M14 26v6c0 6 4.5 11 11 11h2c6 0 11-5 11-11v-6a3 3 0 0 0-6 0" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <div class="brand-text">
+        <h1>SignSpeak <span>AI</span></h1>
+        <p class="tagline" data-i18n="tagline">Two-way sign language translation, live</p>
+      </div>
+    </div>
+
+    <div class="topbar-controls">
+      <div class="status-pill" id="modelStatus">
+        <span class="dot" id="modelStatusDot"></span>
+        <span id="modelStatusText">Loading AI model…</span>
+      </div>
+
+      <div class="lang-toggle" role="group" aria-label="Interface language">
+        <button class="lang-btn active" data-lang="en" id="langEnBtn">EN</button>
+        <button class="lang-btn" data-lang="ta" id="langTaBtn">தமிழ்</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ MAIN STAGE ============ -->
+  <main class="stage">
+
+    <!-- ---------- PANEL 1: SIGN -> SPEECH ---------- -->
+    <section class="panel panel-sign" aria-labelledby="signPanelTitle">
+      <div class="panel-head">
+        <h2 id="signPanelTitle" data-i18n="signToSpeechTitle">Sign → Speech</h2>
+        <span class="panel-sub" data-i18n="signToSpeechSub">Show a sign to the camera</span>
+      </div>
+
+      <div class="camera-wrap" id="cameraWrap">
+        <video id="webcam" autoplay playsinline muted></video>
+        <canvas id="overlay"></canvas>
+
+        <div class="camera-placeholder" id="cameraPlaceholder">
+          <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/>
+          </svg>
+          <p data-i18n="cameraOffLabel">Camera is off</p>
+        </div>
+
+        <div class="rec-badge hidden" id="recBadge" aria-hidden="true">
+          <span class="rec-dot"></span> LIVE
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="cameraToggleBtn" disabled>Start Camera</button>
+
+      <div class="recognized-card" id="recognizedCard">
+        <span class="recognized-label" data-i18n="recognizedLabel">Recognized sign</span>
+        <div class="recognized-word" id="recognizedWord">—</div>
+        <div class="recognized-word-ta" id="recognizedWordTa"></div>
+        <div class="confidence-track"><div class="confidence-fill" id="confidenceFill"></div></div>
+      </div>
+
+      <div class="vocab-strip" id="vocabStrip" aria-label="Supported signs"></div>
+    </section>
+
+    <!-- ---------- PANEL 2: SPEECH -> TEXT ---------- -->
+    <section class="panel panel-speech" aria-labelledby="speechPanelTitle">
+      <div class="panel-head">
+        <h2 id="speechPanelTitle" data-i18n="speechToTextTitle">Speech → Text</h2>
+        <span class="panel-sub" data-i18n="speechToTextSub">For the other person to speak into</span>
+      </div>
+
+      <div class="mic-stage">
+        <button class="mic-btn" id="micBtn" aria-pressed="false">
+          <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6">
+            <rect x="9" y="2" width="6" height="12" rx="3"/>
+            <path d="M5 10a7 7 0 0 0 14 0M12 19v3M8 22h8"/>
+          </svg>
+        </button>
+        <p class="mic-hint" id="micHint">Tap to start listening</p>
+
+        <div class="recog-lang-toggle" role="group" aria-label="Speech recognition language">
+          <button class="chip active" data-reclang="en-IN">English</button>
+          <button class="chip" data-reclang="ta-IN">தமிழ்</button>
+        </div>
+      </div>
+
+      <div class="transcript-box" aria-live="polite">
+        <p class="transcript-final" id="transcriptFinal"></p>
+        <p class="transcript-interim" id="transcriptInterim"></p>
+        <p class="transcript-empty" id="transcriptEmpty" data-i18n="transcriptEmpty">Spoken words will appear here as large text</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ HISTORY ============ -->
+  <section class="history" aria-labelledby="historyTitle">
+    <div class="history-head">
+      <h2 id="historyTitle" data-i18n="historyTitle">Conversation history</h2>
+      <button class="btn btn-ghost" id="clearHistoryBtn" data-i18n="clearHistory">Clear</button>
+    </div>
+    <ul class="history-list" id="historyList">
+      <li class="history-empty" id="historyEmpty" data-i18n="historyEmpty">Your conversation will appear here</li>
+    </ul>
+  </section>
+
+  <footer class="footer">
+    <p data-i18n="footerNote">Prototype vocabulary: 8 signs today — built to expand toward 50–100+ common Indian Sign Language words.</p>
+  </footer>
+
+</div>
+
+<script src="signs.js"></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>
